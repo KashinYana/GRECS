@@ -13,7 +13,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # get local machine name
 host = socket.gethostname()                           
 
-port = 9988
+port = 9984
 
 # connection to hostname on the port.
 s.connect((host, port))
