@@ -1,4 +1,8 @@
-dsd sd jhsdjfh sdjhfkjsh kjdf1  2 2 2 3 3 3kjk 
-dsfkjsdkfj dsklfjlk jdsf333 
-dsfksdjfkl 456
-2323 jdkfjkl
+# FromNodeId	ToNodeId
+7 6
+6 5
+5 4
+4 3
+5 2
+1 2
+1 7

@@ -3,6 +3,8 @@ import socket
 import time
 import sys
 
+import argparse
+
 # create a socket object
 serversocket = socket.socket(
             socket.AF_INET, socket.SOCK_STREAM) 
@@ -10,7 +12,9 @@ serversocket = socket.socket(
 # get local machine name
 host = socket.gethostname()                           
 
-port = 9974                     
+parser = argparse.ArgumentParser()
+parser.add_argument('port', type=int, help='an port')
+port = parser.parse_args().port
 
 # bind to the port
 serversocket.bind((host, port))                                  
@@ -34,31 +38,28 @@ def receive_file(file_id, clientsocket):
 
 def answer_query(file_id, u, v, clientsocket):
     f = open('graph/' + file_id, 'r')
-    draft_u = {}
-    draft_v = {}
+    draft_u = None
+    draft_v = None
 
     for line in f:
-        line = line.strip().split(':')
-        if line[0] == u or line[0] == v:
-            for element in line[1].strip().split(';'):
-                if not element:
-                    continue
-                vertex, dist = element.split(',')
-                if line[0] == u:
-                    draft_u[vertex]  = int(dist) 
-                if line[0] == v:
-                    draft_v[vertex]  = int(dist)  
+        line = line.strip().split(':::::')
+        if len(line) >= 2:
+            print line[0]
+            if line[0] == u:
+                draft_u = line[1]
+            if line[0] == v:
+                draft_v = line[1]
 
-    min_distance = False
-    print 'draft_u', draft_u
-    print 'draft_v', draft_v
+    print 'send draft_u'
+    print 'send draft_v'
     
-    for candidate in draft_u:
-        if candidate in draft_v:
-            if not min_distance or draft_u[candidate] + draft_v[candidate] < min_distance:
-                min_distance = draft_u[candidate] + draft_v[candidate]
-    print 'min_distance', min_distance
-    clientsocket.send(str(min_distance))
+    if draft_u and draft_v:
+        clientsocket.send(draft_u)
+        clientsocket.send(draft_v)
+    else:
+        print 'Error'
+        print 'draft_u', draft_u
+        print 'draft_v', draft_v
 
 
 while True:
@@ -76,7 +77,13 @@ while True:
             receive_file(data[1], clientsocket)
         if data[0] == 'q':
             print 'in query'
-            answer_query(data[1], data[2], data[3], clientsocket)
+            clientsocket.send('Ok')
+            u = clientsocket.recv(1024)
+            clientsocket.send('Ok')
+            v = clientsocket.recv(1024)
+            print 'u', u
+            print 'v', v
+            answer_query(data[1], u, v, clientsocket)
         if data[0] == 'e':
             print 'in exit'
             clientsocket.close()
